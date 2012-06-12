@@ -72,16 +72,16 @@ def ArtistsSubMenu(sender):
 
 ####################################################################################################
 
-def AllArtistsSubMenu(sender):
-    dir = MediaContainer(title2="All Artists", viewGroup="List")
+def AllArtistsSubMenu():
+    oc = ObjectContainer(title2="Artists")
 
-    dir.Append(Function(DirectoryItem(RSS_Artist_parser,"Most Viewed today"),pageurl = FEEDBASE + "/artists" + "?order=MostViewedToday"))
-    dir.Append(Function(DirectoryItem(RSS_Artist_parser,"Most Viewed this week"),pageurl = FEEDBASE + "/artists" + "?order=MostViewedThisWeek"))
-    dir.Append(Function(DirectoryItem(RSS_Artist_parser,"Most Viewed this month"),pageurl = FEEDBASE + "/artists" + "?order=MostViewedThisMonth"))
-    dir.Append(Function(DirectoryItem(RSS_Artist_parser,"All Times Most Viewed"),pageurl = FEEDBASE + "/artists" + "?order=MostViewedAllTime"))
-    dir.Append(Function(DirectoryItem(RSS_Artist_parser,"Recently Added"),pageurl = FEEDBASE + "/artists" + "?order=MostRecent"))
-               
-    return dir
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Recent", group="artist", request="MostRecent"), title="Most Recent")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed today", group="artist", request="MostViewedToday"), title="Most Viewed today")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this week", group="artist", request="MostViewedThisWeek"), title="Most Viewed this week")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this month", group="artist", request="MostViewedThisMonth"), title="Most Viewed this month")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed of All Time", group="artist", request="MostViewedAllTime"), title="Most Viewed of All Time")))
+    
+    return oc
 
 ####################################################################################################
 
