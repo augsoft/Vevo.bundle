@@ -61,18 +61,7 @@ def VideosSubMenu():
     return oc
 
 ####################################################################################################
-
-def ArtistsSubMenu(sender):
-    dir = MediaContainer(title2="Artists", viewGroup="List")
-
-    dir.Append(Function(DirectoryItem(AllArtistsSubMenu,"All")))
-    dir.Append(Function(DirectoryItem(AZArtistsSubMenu,"A to Z")))
-   
-    return dir
-
-####################################################################################################
-
-def AllArtistsSubMenu():
+def ArtistsSubMenu():
     oc = ObjectContainer(title2="Artists")
 
     oc.add(DirectoryObject(key=Callback(API_List, title="Most Recent", group="artist", request="MostRecent"), title="Most Recent")))
@@ -321,5 +310,5 @@ def RSS_parser(sender, pageurl, page=1, replaceParent=False, query=None):
     return dir
 
 ####################################################################################################
-def API_List(title, group='video', request='MostViewedToday', offset='0'):
+def API_List(title, group=None, request=None, offset=None):
     return
