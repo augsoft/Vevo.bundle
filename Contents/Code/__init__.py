@@ -49,17 +49,16 @@ def MainMenu():
     return oc
 
 ####################################################################################################
+def VideosSubMenu():
+    oc = ObjectContainer(title2="Videos")
 
-def VideosSubMenu(sender):
-    dir = MediaContainer(title2="Videos", viewGroup="List")
-
-    dir.Append(Function(DirectoryItem(RSS_parser,"Most Viewed today"),pageurl = FEEDBASE + "/videos" + "?order=MostViewedToday"))
-    dir.Append(Function(DirectoryItem(RSS_parser,"Most Viewed this week"),pageurl = FEEDBASE + "/videos" + "?order=MostViewedThisWeek"))
-    dir.Append(Function(DirectoryItem(RSS_parser,"Most Viewed this month"),pageurl = FEEDBASE + "/videos" + "?order=MostViewedThisMonth"))
-    dir.Append(Function(DirectoryItem(RSS_parser,"All Times Most Viewed"),pageurl = FEEDBASE + "/videos" + "?order=MostViewedAllTime"))
-    dir.Append(Function(DirectoryItem(RSS_parser,"Recently Added"),pageurl = FEEDBASE + "/videos" + "?order=MostRecent"))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Recent", group="video", request="MostRecent"), title="Most Recent")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed today", group="video", request="MostViewedToday"), title="Most Viewed today")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this week", group="video", request="MostViewedThisWeek"), title="Most Viewed this week")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this month", group="video", request="MostViewedThisMonth"), title="Most Viewed this month")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed of All Time", group="video", request="MostViewedAllTime"), title="Most Viewed of All Time")))
     
-    return dir
+    return oc
 
 ####################################################################################################
 
@@ -322,3 +321,5 @@ def RSS_parser(sender, pageurl, page=1, replaceParent=False, query=None):
     return dir
 
 ####################################################################################################
+def API_List(title, group='video', request='MostViewedToday', offset='0'):
+    return
