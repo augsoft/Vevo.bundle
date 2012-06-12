@@ -1,6 +1,6 @@
 # VEVO
 VEVO_TITLE_INFO             = 'http://videoplayer.vevo.com/VideoService/AuthenticateVideo?isrc=%s&authToken=%s&domain=http://www.vevo.com'
-VEVO_API_URL                = 'http://api.vevo.com/mobile/v1/%s/list.jsonp?order=%s&offset=%s&max=25'
+VEVO_API_URL                = 'http://api.vevo.com/mobile/v1/%s/list.jsonp'
 VEVO_SEARCH_URL             = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
 
 # BrightCove
@@ -42,60 +42,61 @@ def MainMenu():
     oc = ObjectContainer()
     oc.add(DirectoryObject(key=Callback(VideosSubMenu), title = "Videos"))
     oc.add(DirectoryObject(key=Callback(ArtistsSubMenu), title = "Artists"))
-    oc.add(DirectoryObject(key=Callback(GenresSubMenu), title = "Genres"))
+    oc.add(DirectoryObject(key=Callback(AllGenresSubMenu), title = "Genres"))
     ### write a search service ###
     #dir.Append(Function(InputDirectoryItem(RSS_Search_parser,"Search...","Search", art=R(ART), thumb=R("search.png")),pageurl = FEEDBASE + "/search?q="))
 
     return oc
 
 ####################################################################################################
-def VideosSubMenu():
-    oc = ObjectContainer(title2="Videos")
+def VideosSubMenu(title=None, genre=None):
+    if title:
+        oc = ObjectContainer(title1="Videos", title2=title)
+    else:
+        oc = ObjectContainer(title2="Videos")
 
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Recent", group="video", request="MostRecent"), title="Most Recent")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed today", group="video", request="MostViewedToday"), title="Most Viewed today")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this week", group="video", request="MostViewedThisWeek"), title="Most Viewed this week")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this month", group="video", request="MostViewedThisMonth"), title="Most Viewed this month")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed of All Time", group="video", request="MostViewedAllTime"), title="Most Viewed of All Time")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Recent", group="video", request="MostRecent", genre=genre), title="Most Recent")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed today", group="video", request="MostViewedToday", genre=genre), title="Most Viewed today")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this week", group="video", request="MostViewedThisWeek", genre=genre), title="Most Viewed this week")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this month", group="video", request="MostViewedThisMonth", genre=genre), title="Most Viewed this month")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed of All Time", group="video", request="MostViewedAllTime", genre=genre), title="Most Viewed of All Time")))
     
     return oc
 
 ####################################################################################################
-def ArtistsSubMenu():
-    oc = ObjectContainer(title2="Artists")
+def ArtistsSubMenu(title=None, genre=None):
+    if title:
+        oc = ObjectContainer(title1="Videos", title2=title)
+    else:
+        oc = ObjectContainer(title2="Videos")
 
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Recent", group="artist", request="MostRecent"), title="Most Recent")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed today", group="artist", request="MostViewedToday"), title="Most Viewed today")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this week", group="artist", request="MostViewedThisWeek"), title="Most Viewed this week")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this month", group="artist", request="MostViewedThisMonth"), title="Most Viewed this month")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed of All Time", group="artist", request="MostViewedAllTime"), title="Most Viewed of All Time")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Recent", group="artist", request="MostRecent", genre=genre), title="Most Recent")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed today", group="artist", request="MostViewedToday", genre=genre), title="Most Viewed today")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this week", group="artist", request="MostViewedThisWeek", genre=genre), title="Most Viewed this week")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this month", group="artist", request="MostViewedThisMonth", genre=genre), title="Most Viewed this month")))
+    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed of All Time", group="artist", request="MostViewedAllTime", genre=genre), title="Most Viewed of All Time")))
     
     return oc
 
 ####################################################################################################
-
-def AZArtistsSubMenu (sender):
-    dir = MediaContainer(title2="Artists A to Z", viewGroup="List")
-
-    for Letter in XML.ElementFromURL(FEEDBASE+"/artists/a-z", True).xpath("//ul[@id='romanIndex']/li/a") :
-      dir.Append(Function(DirectoryItem(RSS_Artist_parser,Letter.text), pageurl = FEEDBASE + Letter.get('href'),page = 0))
-
-    return dir
-####################################################################################################
-
-def GenresSubMenu (sender):
-    dir = MediaContainer(title2="Genres", viewGroup="List")
-
-    Genres = XML.ElementFromURL(FEEDBASE+"/videos", True).xpath("//select[@id='genre']/option")
-    for Genre in Genres :
-      if Genre.text != 'All':
-        dir.Append(Function(DirectoryItem(RSS_parser,Genre.text),pageurl = FEEDBASE + "/genre/"+Genre.get("value")))
-    return dir
+def AllGenresSubMenu():
+    oc = ObjectContainer()
+    genres = JSON.ObjectFromURL(VEVO_API_URL % 'genre')['result']
+    for genre in genres:
+        oc.add(DirectoryObject(key=Callback(GenreSubMenu, title=genre['Value'], genre=genre['Key']), title=genre['Value']))
+    return oc
 
 ####################################################################################################
+def GenreSubMenu(title, genre):
+    oc = ObjectContainer(title2=title)
+    
+    oc.add(DirectoryObject(key=Callback(VideosSubMenu, title=title, genre=genre), title="Videos"))
+    oc.add(DirectoryObject(key=Callback(ArtistsSubMenu, title=title, genre=genre), title="Artists"))
+    
+    return oc
 
+####################################################################################################
 #Video File Parsing
-
 def GetTitle(vevo_id):
   try:
     info = JSON.ObjectFromURL(VEVO_TITLE_INFO % ( vevo_id, authToken ))
@@ -310,5 +311,6 @@ def RSS_parser(sender, pageurl, page=1, replaceParent=False, query=None):
     return dir
 
 ####################################################################################################
-def API_List(title, group=None, request=None, offset=None):
+def API_List(title, group=None, request=None, genres=None, offset=None):
+    '''?order=%s&offset=%s&max=25&genres=%s'''
     return
