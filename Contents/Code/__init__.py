@@ -1,14 +1,3 @@
-# -*- coding: utf-8 -*-
-
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
-import pyamf, re
-from pyamf.remoting.client import RemotingService
-from uuid import *
-
-####################################################################################################
-
 # VEVO
 VEVO_TITLE_INFO            = 'http://videoplayer.vevo.com/VideoService/AuthenticateVideo?isrc=%s&authToken=%s&domain=http://www.vevo.com'
 
