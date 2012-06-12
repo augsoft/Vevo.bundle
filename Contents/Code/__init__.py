@@ -1,12 +1,6 @@
 # VEVO
 VEVO_TITLE_INFO            = 'http://videoplayer.vevo.com/VideoService/AuthenticateVideo?isrc=%s&authToken=%s&domain=http://www.vevo.com'
 
-# YouTube
-YT_VIDEO_PAGE              = 'http://www.youtube.com/watch?v=%s'
-YT_GET_VIDEO_URL           = 'http://www.youtube.com/get_video?video_id=%s&t=%s&fmt=%d&asv=3'
-YT_VIDEO_FORMATS           = ['Standard', 'Medium', 'High', '720p', '1080p']
-YT_FMT                     = [34, 18, 35, 22, 37]
-
 # BrightCove
 BC_PLAYER_ID               = 105891355001
 BC_PUBLISHER_ID            = 62009797001
@@ -184,36 +178,6 @@ def PlayVideo(sender, vevo_id ):
     return Redirect( GetYouTubeVideo(id) )
   elif sourceType == 1:
     return Redirect(WebVideoItem( GetBrightCoveVideo(id) ))
-
-####################################################################################################
-
-def GetYouTubeVideo(video_id):
-  yt_page = HTTP.Request(YT_VIDEO_PAGE % (video_id), cacheTime=1)
-
-  fmt_url_map = re.findall('"fmt_url_map".+?"([^"]+)', yt_page)[0]
-  fmt_url_map = fmt_url_map.replace('\/', '/').split(',')
-
-  fmts = []
-  fmts_info = {}
-
-  for f in fmt_url_map:
-    (fmt, url) = f.split('|')
-    fmts.append(fmt)
-    fmts_info[str(fmt)] = url
-
-  index = YT_VIDEO_FORMATS.index(Prefs.Get('ytfmt'))
-  if YT_FMT[index] in fmts:
-    fmt = YT_FMT[index]
-  else:
-    for i in reversed( range(0, index+1) ):
-      if str(YT_FMT[i]) in fmts:
-        fmt = YT_FMT[i]
-        break
-      else:
-        fmt = 5
-
-  url = fmts_info[str(fmt)]
-  return url
 
 ####################################################################################################
 
