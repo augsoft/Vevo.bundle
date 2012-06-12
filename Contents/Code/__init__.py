@@ -1,5 +1,7 @@
 # VEVO
-VEVO_TITLE_INFO            = 'http://videoplayer.vevo.com/VideoService/AuthenticateVideo?isrc=%s&authToken=%s&domain=http://www.vevo.com'
+VEVO_TITLE_INFO             = 'http://videoplayer.vevo.com/VideoService/AuthenticateVideo?isrc=%s&authToken=%s&domain=http://www.vevo.com'
+VEVO_API_URL                = 'http://api.vevo.com/mobile/v1/%s/list.jsonp?order=%s&offset=%s&max=25'
+VEVO_SEARCH_URL             = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
 
 # BrightCove
 BC_PLAYER_ID               = 105891355001
@@ -21,7 +23,6 @@ CACHE_TIME = 3600
 
 authToken = str(uuid3(NAMESPACE_URL,"http://vevo.com"))
 ####################################################################################################
-
 def Start():
 
     Plugin.AddPrefixHandler(VIDEO_PREFIX, MainMenu, L('Title'), ICON, ART)
@@ -35,33 +36,17 @@ def Start():
     HTTP.CacheTime = CACHE_1HOUR
 
 ####################################################################################################
-
-def UpdateCache():
-    HTTP.PreCache(FEEDBASE + "/videos" + "?order=MostViewedToday")
-    HTTP.PreCache(FEEDBASE + "/videos" + "?order=MostViewedThisWeek")
-    HTTP.PreCache(FEEDBASE + "/videos" + "?order=MostViewedThisMonth")
-    HTTP.PreCache(FEEDBASE + "/videos" + "?order=MostViewedAllTime")
-    HTTP.PreCache(FEEDBASE + "/videos" + "?order=MostRecent")
-
-    HTTP.PreCache(FEEDBASE + "/artists" + "?order=MostViewedToday")
-    HTTP.PreCache(FEEDBASE + "/artists" + "?order=MostViewedThisWeek")
-    HTTP.PreCache(FEEDBASE + "/artists" + "?order=MostViewedThisMonth")
-    HTTP.PreCache(FEEDBASE + "/artists" + "?order=MostViewedAllTime")
-    HTTP.PreCache(FEEDBASE + "/artists" + "?order=MostRecent")
-
-####################################################################################################
 #Navigation
-
 def MainMenu():
 
-    dir = MediaContainer(viewGroup="List")
-    dir.Append(Function(DirectoryItem(VideosSubMenu,"Videos")))
-    dir.Append(Function(DirectoryItem(ArtistsSubMenu,"Artists")))
-    dir.Append(Function(DirectoryItem(GenresSubMenu,"Genres")))
-    dir.Append(Function(DirectoryItem(RSS_Artist_parser,"Channels"),pageurl = FEEDBASE + "/channels"))
-    dir.Append(Function(InputDirectoryItem(RSS_Search_parser,"Search...","Search", art=R(ART), thumb=R("search.png")),pageurl = FEEDBASE + "/search?q="))
+    oc = ObjectContainer()
+    oc.add(DirectoryObject(key=Callback(VideosSubMenu), title = "Videos"))
+    oc.add(DirectoryObject(key=Callback(ArtistsSubMenu), title = "Artists"))
+    oc.add(DirectoryObject(key=Callback(GenresSubMenu), title = "Genres"))
+    ### write a search service ###
+    #dir.Append(Function(InputDirectoryItem(RSS_Search_parser,"Search...","Search", art=R(ART), thumb=R("search.png")),pageurl = FEEDBASE + "/search?q="))
 
-    return dir
+    return oc
 
 ####################################################################################################
 
