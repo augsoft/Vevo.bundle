@@ -96,6 +96,33 @@ def GenreSubMenu(title, genre):
     return oc
 
 ####################################################################################################
-def API_List(title, group=None, request=None, genres=None, offset=None):
-    '''?order=%s&offset=%s&max=25&genres=%s'''
+def VideoListing(title, group=None, request=None, genres=None, offset=None):
     return
+
+####################################################################################################
+def ArtistListing(title, group=None, request=None, genres=None, offset=None):
+    return
+
+####################################################################################################
+def API_Call(title, group=None, request=None, genres=None, offset=None):
+    '''?order=%s&offset=%s&max=25&genres=%s'''
+    params = ''
+    if request:
+        params = BuildParams(params, "order=%s" % request)
+    if offset:
+        params = BuildParams(params, "offset=%s" % offset)
+    if group != 'genre':
+        params = BuildParams(params, "max=%s" % '25')
+    if genres:
+        params = BuildParams(params, "genres=%s" % genres)
+        
+    url = (VEVO_API_URL % group) + params
+    return JSON.ObjectFromURL(url) 
+
+####################################################################################################
+def BuildParams(params, new_param):
+    if params[0] != '?':
+        params = '?' + params
+    if params[-1] != '?':
+        params = params + '&'
+    return (params + new_param)
