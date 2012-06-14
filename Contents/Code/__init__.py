@@ -1,8 +1,9 @@
 # VEVO
 VEVO_TITLE_INFO             = 'http://videoplayer.vevo.com/VideoService/AuthenticateVideo?isrc=%s&authToken=%s&domain=http://www.vevo.com'
 VEVO_API_URL                = 'http://api.vevo.com/mobile/v1/%s/list.jsonp'
-VEVO_SEARCH_URL             = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
 VIDEO_URL                   = 'http://www.vevo.com/watch/%s/%s/%s'
+ARTIST_VIDEOS_URL           = 'http://www.vevo.com/data/artist/%s'
+VEVO_SEARCH_URL             = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
 
 # BrightCove
 BC_PLAYER_ID               = 105891355001
@@ -97,11 +98,11 @@ def GenreSubMenu(title, genre):
     return oc
 
 ####################################################################################################
-def VideoListing(title, group=None, request=None, genres=None, offset=None):
+def VideoListing(title, group=None, request=None, genres=None, offset=0):
     oc = ObjectContainer(title2=title)
     results = API_Call(group, request, genres, offset)['result']
     for result in results:
-        title = result['title']
+        video_title = result['title']
         thumb = result['image_url']
         duration = int(result['duration_in_seconds'])*1000
         artists = result['artists_main']
@@ -122,15 +123,29 @@ def VideoListing(title, group=None, request=None, genres=None, offset=None):
             for featured in featured_artists:
                 summary = summary + featured['name'] + ', '
             summary = summary.strip(', ')
-        oc.add(VideoClipObject(url=url, title=title, summary=summary, duration=duration,
+        oc.add(VideoClipObject(url=url, title=video_title, summary=summary, duration=duration,
             thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback='icon-default.png')))
+    oc.add(DirectoryObject(key=Callback(VideoListing, title, group, request, genres, offset=(offset+20)), title="More"))
+    if len(oc) == 0:
+        return ObjectContainer(header=NAME, message="No entries found.")
     return oc
 
 ####################################################################################################
-def ArtistListing(title, group=None, request=None, genres=None, offset=None):
+def ArtistListing(title, group=None, request=None, genres=None, offset=0):
     oc = ObjectContainer(title2=title)
-    results = API_Call(group, request, genres, offset)
+    results = API_Call(group, request, genres, offset)['result']
+    for artist in results:
+        name = artist['name']
+        thumb = artist['image_url']
+        oc.add(DirectoryObject(key=Callback(ArtistVideoListing, name=name, urlsafe_name=artist['url_safename'])))
+    oc.add(DirectoryObject(key=Callback(ArtistListing, title, group, request, genres, offset=(offset+20)), title="More"))
+    if len(oc) == 0:
+        return ObjectContainer(header=NAME, message="No entries found."
     return oc
+
+####################################################################################################
+def ArtistVideoListing(name, urlsafe_name):
+    return
 
 ####################################################################################################
 def API_Call(group=None, request=None, genres=None, offset=None):
