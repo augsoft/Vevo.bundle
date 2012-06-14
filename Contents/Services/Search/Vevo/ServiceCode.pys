@@ -11,4 +11,7 @@ def Search(query):
         thumb = video['img']
         oc.add(VideoClipObject(url=VEVO_URL + video['url'], title=title, summary=summary
             thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback='icon-default.png')))
+        if len(oc) >= 20:
+            break
+    
     return oc
