@@ -1,6 +1,7 @@
 # VEVO
 VEVO_TITLE_INFO             = 'http://videoplayer.vevo.com/VideoService/AuthenticateVideo?isrc=%s&authToken=%s&domain=http://www.vevo.com'
 VEVO_API_URL                = 'http://api.vevo.com/mobile/v1/%s/list.jsonp'
+VEVO_URL                    = 'http://www.vevo.com'
 VIDEO_URL                   = 'http://www.vevo.com/watch/%s/%s/%s'
 ARTIST_VIDEOS_URL           = 'http://www.vevo.com/data/artist/%s'
 VEVO_SEARCH_URL             = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
@@ -145,8 +146,17 @@ def ArtistListing(title, group=None, request=None, genres=None, offset=0):
 
 ####################################################################################################
 def ArtistVideoListing(name, urlsafe_name):
-    return
-
+    oc = ObjectContainer(title2=name)
+    videos = JSON.ObjectFromURL(ARTIST_VIDEOS_URL % urlsafe_name)['Videos']
+    for video in videos:
+        title = video['title']
+        thumb = video['img']
+        url = VEVO_URL + video['url']
+        oc.add(VideoClipObject(url=url, title=title, thumb=Resource.ContentsOfURLWithFallback(url=thumb,fallback=='icon-default.png')))
+    if len(oc) == 0:
+        return ObjectContainer(header=NAME, message="No entries found."
+    return oc
+    
 ####################################################################################################
 def API_Call(group=None, request=None, genres=None, offset=None):
     params = ''
