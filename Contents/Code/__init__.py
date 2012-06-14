@@ -58,6 +58,8 @@ def ArtistSearch(query):
         thumb = artist['img']
         oc.add(DirectoryObject(key=Callback(ArtistVideoListing, name=title, urlsafe_name=artist['urlKey']), title=title,
             thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback='icon-default.png')))
+    if len(oc) == 0:
+        return ObjectContainer(header=NAME, message="Sorry. No results found")
     return oc
 
 ####################################################################################################
