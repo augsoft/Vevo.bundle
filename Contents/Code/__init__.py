@@ -2,6 +2,7 @@
 VEVO_TITLE_INFO             = 'http://videoplayer.vevo.com/VideoService/AuthenticateVideo?isrc=%s&authToken=%s&domain=http://www.vevo.com'
 VEVO_API_URL                = 'http://api.vevo.com/mobile/v1/%s/list.jsonp'
 VEVO_SEARCH_URL             = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
+VIDEO_URL                   = 'http://www.vevo.com/watch/%s/%s/%s'
 
 # BrightCove
 BC_PLAYER_ID               = 105891355001
@@ -97,15 +98,35 @@ def GenreSubMenu(title, genre):
 
 ####################################################################################################
 def VideoListing(title, group=None, request=None, genres=None, offset=None):
-    return
+    oc = ObjectContainer(title2=title)
+    results = API_Call(group, request, genres, offset)['result']
+    for result in results:
+        title = result['title']
+        thumb = result['image_url']
+        duration = int(result['duration_in_seconds'])*1000
+        artists = result['artists_main']
+        featured_artists = result['artists_featured']
+        url = VIDEO_URL % (result['artists_main'][0]['url_safename'], result['url_safe_title'], result['isrc'])
+        summary = ''
+        if len(artists) == 1:
+            summary = 'Artist: %s' % artist['name']
+        elif len(artists) > 1:
+            summary = 'Artists: '
+            for artist in artists:
+                summary = summary + artist['name'] + ', '
+            summary = summary.strip(', ')
+        else:
+            pass
+    return oc
 
 ####################################################################################################
 def ArtistListing(title, group=None, request=None, genres=None, offset=None):
-    return
+    oc = ObjectContainer(title2=title)
+    results = API_Call(group, request, genres, offset)
+    return oc
 
 ####################################################################################################
-def API_Call(title, group=None, request=None, genres=None, offset=None):
-    '''?order=%s&offset=%s&max=25&genres=%s'''
+def API_Call(group=None, request=None, genres=None, offset=None):
     params = ''
     if request:
         params = BuildParams(params, "order=%s" % request)
