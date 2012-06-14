@@ -4,7 +4,7 @@ VEVO_API_URL                = 'http://api.vevo.com/mobile/v1/%s/list.jsonp'
 VEVO_URL                    = 'http://www.vevo.com'
 VIDEO_URL                   = 'http://www.vevo.com/watch/%s/%s/%s'
 ARTIST_VIDEOS_URL           = 'http://www.vevo.com/data/artist/%s'
-VEVO_SEARCH_URL             = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
+SEARCH_URL                  = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
 
 VIDEO_PREFIX = "/video/vevo"
 NAME = 'Vevo'
@@ -36,8 +36,28 @@ def MainMenu():
     oc.add(DirectoryObject(key=Callback(ArtistsSubMenu), title = "Artists"))
     oc.add(DirectoryObject(key=Callback(AllGenresSubMenu), title = "Genres"))
     ### write a search service ###
-    #dir.Append(Function(InputDirectoryItem(RSS_Search_parser,"Search...","Search", art=R(ART), thumb=R("search.png")),pageurl = FEEDBASE + "/search?q="))
+    oc.add(DirectoryObject(key=Callback(SearchMenu), title="Search", thumb=R(SEARCHICON)))
+    
+    return oc
 
+####################################################################################################
+def SearchMenu():
+    oc = ObjectContainer(title2="Search")
+    oc.add(InputDirectoryObject(key=Callback(ArtistSearch), title="Search for Artists", prompt="Search for...",
+        thumb=R(SEARCHICON)))
+    oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.vevo", title="Search for Videos", prompt="Search for...",
+        thumb=R(SEARCHICON)))
+    return oc
+
+####################################################################################################
+def ArtistSearch(query):
+    oc = ObjectContainer(title2='Search Results')
+    results = JSON.ObjectFromURL(SEARCH_URL % query)['Artists']
+    for artist in results:
+        title = artist['name']
+        thumb = artist['img']
+        oc.add(DirectoryObject(key=Callback(ArtistVideoListing, name=title, urlsafe_name=artist['urlKey']), title=title,
+            thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback='icon-default.png')))
     return oc
 
 ####################################################################################################
