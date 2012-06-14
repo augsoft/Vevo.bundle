@@ -117,6 +117,13 @@ def VideoListing(title, group=None, request=None, genres=None, offset=None):
             summary = summary.strip(', ')
         else:
             pass
+        if len(featured_artists) > 0:
+            summary = summary + '\nFeaturing: '
+            for featured in featured_artists:
+                summary = summary + featured['name'] + ', '
+            summary = summary.strip(', ')
+        oc.add(VideoClipObject(url=url, title=title, summary=summary, duration=duration,
+            thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback='icon-default.png')))
     return oc
 
 ####################################################################################################
