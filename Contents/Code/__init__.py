@@ -6,25 +6,14 @@ VIDEO_URL                   = 'http://www.vevo.com/watch/%s/%s/%s'
 ARTIST_VIDEOS_URL           = 'http://www.vevo.com/data/artist/%s'
 VEVO_SEARCH_URL             = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
 
-# BrightCove
-BC_PLAYER_ID               = 105891355001
-BC_PUBLISHER_ID            = 62009797001
-BC_PLAYER                  = 'http://x.brightcove.com/plex/video.php?publisherId=%d&playerId=%d&videoId=%%d' % (BC_PUBLISHER_ID, BC_PLAYER_ID)
-
 VIDEO_PREFIX = "/video/vevo"
 NAME = 'Vevo'
 ART  = 'art-default.jpg'
 ICON = 'icon-default.png'
 SEARCHICON = 'search.png'
 
-FEEDBASE = "http://www.vevo.com"
-
-MRSS  = {'media':'http://search.yahoo.com/mrss/'}
-RTE   = {'rte':'http://www.rte.ie/schemas/vod'}
-
 CACHE_TIME = 3600
 
-authToken = str(uuid3(NAMESPACE_URL,"http://vevo.com"))
 ####################################################################################################
 def Start():
 
