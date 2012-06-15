@@ -5,6 +5,10 @@
     <key>Search</key>
 	<dict>
 		<key>Vevo</key>
+		<dict>
+			<key>Identifier</key>
+			<string>com.plexapp.plugins.vevo</string>
+		</dict>
 	</dict>
 </dict>
 </plist>

@@ -1,6 +1,6 @@
 # VEVO
 VEVO_TITLE_INFO             = 'http://videoplayer.vevo.com/VideoService/AuthenticateVideo?isrc=%s&authToken=%s&domain=http://www.vevo.com'
-VEVO_API_URL                = 'http://api.vevo.com/mobile/v1/%s/list.jsonp'
+VEVO_API_URL                = 'http://api.vevo.com/mobile/v1/%s/list.json'
 VEVO_URL                    = 'http://www.vevo.com'
 VIDEO_URL                   = 'http://www.vevo.com/watch/%s/%s/%s'
 ARTIST_VIDEOS_URL           = 'http://www.vevo.com/data/artist/%s'
@@ -69,11 +69,11 @@ def VideosSubMenu(title=None, genre=None):
     else:
         oc = ObjectContainer(title2="Videos")
 
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Recent", group="video", request="MostRecent", genre=genre), title="Most Recent")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed today", group="video", request="MostViewedToday", genre=genre), title="Most Viewed today")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this week", group="video", request="MostViewedThisWeek", genre=genre), title="Most Viewed this week")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this month", group="video", request="MostViewedThisMonth", genre=genre), title="Most Viewed this month")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed of All Time", group="video", request="MostViewedAllTime", genre=genre), title="Most Viewed of All Time")))
+    oc.add(DirectoryObject(key=Callback(VideoListing, title="Most Recent", request="MostRecent", genres=genre), title="Most Recent"))
+    oc.add(DirectoryObject(key=Callback(VideoListing, title="Most Viewed today", request="MostViewedToday", genres=genre), title="Most Viewed today"))
+    oc.add(DirectoryObject(key=Callback(VideoListing, title="Most Viewed this week", request="MostViewedThisWeek", genres=genre), title="Most Viewed this week"))
+    oc.add(DirectoryObject(key=Callback(VideoListing, title="Most Viewed this month", request="MostViewedThisMonth", genres=genre), title="Most Viewed this month"))
+    oc.add(DirectoryObject(key=Callback(VideoListing, title="Most Viewed of All Time", request="MostViewedAllTime", genres=genre), title="Most Viewed of All Time"))
     
     return oc
 
@@ -84,11 +84,11 @@ def ArtistsSubMenu(title=None, genre=None):
     else:
         oc = ObjectContainer(title2="Videos")
 
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Recent", group="artist", request="MostRecent", genre=genre), title="Most Recent")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed today", group="artist", request="MostViewedToday", genre=genre), title="Most Viewed today")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this week", group="artist", request="MostViewedThisWeek", genre=genre), title="Most Viewed this week")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed this month", group="artist", request="MostViewedThisMonth", genre=genre), title="Most Viewed this month")))
-    oc.add(DirectoryObject(key=Callback(API_List, title="Most Viewed of All Time", group="artist", request="MostViewedAllTime", genre=genre), title="Most Viewed of All Time")))
+    oc.add(DirectoryObject(key=Callback(ArtistListing, title="Most Recent", request="MostRecent", genres=genre), title="Most Recent"))
+    oc.add(DirectoryObject(key=Callback(ArtistListing, title="Most Viewed today", request="MostViewedToday", genres=genre), title="Most Viewed today"))
+    oc.add(DirectoryObject(key=Callback(ArtistListing, title="Most Viewed this week", request="MostViewedThisWeek", genres=genre), title="Most Viewed this week"))
+    oc.add(DirectoryObject(key=Callback(ArtistListing, title="Most Viewed this month", request="MostViewedThisMonth", genres=genre), title="Most Viewed this month"))
+    oc.add(DirectoryObject(key=Callback(ArtistListing, title="Most Viewed of All Time", request="MostViewedAllTime", genres=genre), title="Most Viewed of All Time"))
     
     return oc
 
@@ -110,8 +110,12 @@ def GenreSubMenu(title, genre):
     return oc
 
 ####################################################################################################
-def VideoListing(title, group=None, request=None, genres=None, offset=0):
-    oc = ObjectContainer(title2=title)
+def VideoListing(title, group='video', request=None, genres=None, offset=0):
+    if offset != 0:
+        oc = ObjectContainer(title2=title, replace_parent=True)
+        oc.add(DirectoryObject(key=Callback(VideoListing, title=title, request=request, genres=genres, offset=(offset-20)), title="Previous"))
+    else:
+        oc = ObjectContainer(title2=title)
     results = API_Call(group, request, genres, offset)['result']
     for result in results:
         video_title = result['title']
@@ -122,7 +126,7 @@ def VideoListing(title, group=None, request=None, genres=None, offset=0):
         url = VIDEO_URL % (result['artists_main'][0]['url_safename'], result['url_safe_title'], result['isrc'])
         summary = ''
         if len(artists) == 1:
-            summary = 'Artist: %s' % artist['name']
+            summary = 'Artist: %s' % artists[0]['name']
         elif len(artists) > 1:
             summary = 'Artists: '
             for artist in artists:
@@ -137,22 +141,26 @@ def VideoListing(title, group=None, request=None, genres=None, offset=0):
             summary = summary.strip(', ')
         oc.add(VideoClipObject(url=url, title=video_title, summary=summary, duration=duration,
             thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback='icon-default.png')))
-    oc.add(DirectoryObject(key=Callback(VideoListing, title, group, request, genres, offset=(offset+20)), title="More"))
+    oc.add(DirectoryObject(key=Callback(VideoListing, title=title, request=request, genres=genres, offset=(offset+20)), title="More"))
     if len(oc) == 0:
         return ObjectContainer(header=NAME, message="No entries found.")
     return oc
 
 ####################################################################################################
-def ArtistListing(title, group=None, request=None, genres=None, offset=0):
-    oc = ObjectContainer(title2=title)
+def ArtistListing(title, group='artist', request=None, genres=None, offset=0):
+    if offset != 0:
+        oc = ObjectContainer(title2=title, replace_parent=True)
+        oc.add(DirectoryObject(key=Callback(ArtistListing, title=title, request=request, genres=genres, offset=(offset-20)), title="Previous"))
+    else:
+        oc = ObjectContainer(title2=title)
     results = API_Call(group, request, genres, offset)['result']
     for artist in results:
         name = artist['name']
         thumb = artist['image_url']
-        oc.add(DirectoryObject(key=Callback(ArtistVideoListing, name=name, urlsafe_name=artist['url_safename'])))
-    oc.add(DirectoryObject(key=Callback(ArtistListing, title, group, request, genres, offset=(offset+20)), title="More"))
+        oc.add(DirectoryObject(key=Callback(ArtistVideoListing, name=name, urlsafe_name=artist['url_safename']), title=name))
+    oc.add(DirectoryObject(key=Callback(ArtistListing, title=title, request=request, genres=genres, offset=(offset+20)), title="More"))
     if len(oc) == 0:
-        return ObjectContainer(header=NAME, message="No entries found."
+        return ObjectContainer(header=NAME, message="No entries found.")
     return oc
 
 ####################################################################################################
@@ -163,9 +171,9 @@ def ArtistVideoListing(name, urlsafe_name):
         title = video['title']
         thumb = video['img']
         url = VEVO_URL + video['url']
-        oc.add(VideoClipObject(url=url, title=title, thumb=Resource.ContentsOfURLWithFallback(url=thumb,fallback=='icon-default.png')))
+        oc.add(VideoClipObject(url=url, title=title, thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback='icon-default.png')))
     if len(oc) == 0:
-        return ObjectContainer(header=NAME, message="No entries found."
+        return ObjectContainer(header=NAME, message="No entries found.")
     return oc
     
 ####################################################################################################
@@ -185,7 +193,7 @@ def API_Call(group=None, request=None, genres=None, offset=None):
 
 ####################################################################################################
 def BuildParams(params, new_param):
-    if params[0] != '?':
+    if not params.startswith('?'):
         params = '?' + params
     if params[-1] != '?':
         params = params + '&'
