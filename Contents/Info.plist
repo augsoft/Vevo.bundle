@@ -18,6 +18,11 @@
     <string>1.0</string>
     <key>PlexClientPlatforms</key>
 	<string>*</string>
+    <key>PlexPluginRegions</key>
+	<array>
+		<string>US</string>
+		<string>CA</string>
+	</array>
     <key>PlexPluginMode</key>
     <string>AlwaysOn</string>
   </dict>

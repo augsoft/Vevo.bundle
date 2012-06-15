@@ -35,7 +35,6 @@ def MainMenu():
     oc.add(DirectoryObject(key=Callback(VideosSubMenu), title = "Videos"))
     oc.add(DirectoryObject(key=Callback(ArtistsSubMenu), title = "Artists"))
     oc.add(DirectoryObject(key=Callback(AllGenresSubMenu), title = "Genres"))
-    ### write a search service ###
     oc.add(DirectoryObject(key=Callback(SearchMenu), title="Search", thumb=R(SEARCHICON)))
     
     return oc
