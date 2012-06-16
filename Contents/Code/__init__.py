@@ -1,4 +1,3 @@
-# VEVO
 VEVO_TITLE_INFO             = 'http://videoplayer.vevo.com/VideoService/AuthenticateVideo?isrc=%s&authToken=%s&domain=http://www.vevo.com'
 VEVO_API_URL                = 'http://api.vevo.com/mobile/v1/%s/list.json'
 VEVO_URL                    = 'http://www.vevo.com'
@@ -10,14 +9,12 @@ VIDEO_PREFIX = "/video/vevo"
 NAME = 'Vevo'
 ART  = 'art-default.jpg'
 ICON = 'icon-default.png'
-SEARCHICON = 'search.png'
-
-CACHE_TIME = 3600
+SEARCHICON = 'icon-search.png'
 
 ####################################################################################################
 def Start():
 
-    Plugin.AddPrefixHandler(VIDEO_PREFIX, MainMenu, L('Title'), ICON, ART)
+    Plugin.AddPrefixHandler(VIDEO_PREFIX, MainMenu, NAME, ICON, ART)
 
     Plugin.AddViewGroup("InfoList", viewMode="InfoList", mediaType="items")
 
