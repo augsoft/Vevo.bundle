@@ -149,12 +149,17 @@ def ArtistListing(title, group='artist', request=None, genres=None, offset=0):
         oc.add(DirectoryObject(key=Callback(ArtistListing, title=title, request=request, genres=genres, offset=(offset-20)), title="Previous"))
     else:
         oc = ObjectContainer(title2=title)
+
     results = API_Call(group, request, genres, offset)['result']
+
     for artist in results:
         name = artist['name']
-        thumb = artist['image_url']
-        oc.add(DirectoryObject(key=Callback(ArtistVideoListing, name=name, urlsafe_name=artist['url_safename']), title=name))
+        thumb = artist['image_url'] + '?width=512&height=512&crop=auto'
+        oc.add(DirectoryObject(key=Callback(ArtistVideoListing, name=name, urlsafe_name=artist['url_safename']), title=name,
+            thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback='icon-default.png')))
+
     oc.add(DirectoryObject(key=Callback(ArtistListing, title=title, request=request, genres=genres, offset=(offset+20)), title="More"))
+
     if len(oc) == 0:
         return ObjectContainer(header=NAME, message="No entries found.")
     return oc
