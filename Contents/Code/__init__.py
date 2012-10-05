@@ -48,7 +48,7 @@ def SearchMenu():
 ####################################################################################################
 def ArtistSearch(query):
     oc = ObjectContainer(title2='Search Results')
-    results = JSON.ObjectFromURL(SEARCH_URL % query)['Artists']
+    results = JSON.ObjectFromURL(SEARCH_URL % String.Quote(query))['Artists']
     for artist in results:
         title = artist['name']
         thumb = artist['img']
