@@ -1,17 +1,22 @@
-SEARCH_URL              = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
-VEVO_URL                = 'http://www.vevo.com'
+SEARCH_URL = 'http://api.vevo.com/mobile/v1/lookahead.json?q=%s&fullItems=true&newSearch=yes'
+VEVO_URL = 'http://www.vevo.com'
 
 ####################################################################################################
 def Search(query):
-    oc = ObjectContainer()
-    results = JSON.ObjectFromURL(SEARCH_URL % query)['Videos']
-    for video in results:
-        title = video['name']
-        summary = video['artistName']
-        thumb = video['img']
-        oc.add(VideoClipObject(url=VEVO_URL + video['url'], title=title, summary=summary,
-            thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback='icon-default.png')))
-        if len(oc) >= 20:
-            break
-    
-    return oc
+
+	oc = ObjectContainer()
+	results = JSON.ObjectFromURL(SEARCH_URL % query)['Videos']
+
+	for video in results:
+
+		oc.add(VideoClipObject(
+			url = VEVO_URL + video['url'],
+			title = video['name'],
+			summary = video['artistName'],
+			thumb = Resource.ContentsOfURLWithFallback(url=video['img'])
+		))
+
+		if len(oc) >= 20:
+			break
+
+	return oc
